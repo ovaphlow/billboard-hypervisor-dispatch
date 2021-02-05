@@ -4,5 +4,8 @@
   "main": "index.js",
   "repository": "https://github.com/ovaphlow/billboard-hypervisor-dispatch.git",
   "author": "ovaphlow <ovaphlow@live.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "koa": "^2.13.1"
+  }
 }
