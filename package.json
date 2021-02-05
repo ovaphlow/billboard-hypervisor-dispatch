@@ -1,0 +1,8 @@
+{
+  "name": "billboard-hypervisor-dispatch",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/ovaphlow/billboard-hypervisor-dispatch.git",
+  "author": "ovaphlow <ovaphlow@live.com>",
+  "license": "MIT"
+}
