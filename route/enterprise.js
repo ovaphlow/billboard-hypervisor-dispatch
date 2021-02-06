@@ -90,24 +90,24 @@ router.get('/:id', async (ctx) => {
 
 router.put('/delivery', async (ctx) => {
   const sql = `
-    select 
+    select
       d.id,
-      (select name from resume 
-       where uuid=d.resume_uuid 
+      (select name from resume
+       where uuid=d.resume_uuid
         and id = d.resume_id) as resume_name,
-      (select name from recruitment 
-       where uuid=d.recruitment_uuid 
+      (select name from recruitment
+       where uuid=d.recruitment_uuid
         and id = d.recruitment_id) as recruitment_name,
       datime,
       status
     from delivery as d
-    where 
-      d.recruitment_uuid 
-        in (select uuid 
-            from recruitment 
-            where enterprise_id=? 
+    where
+      d.recruitment_uuid
+        in (select uuid
+            from recruitment
+            where enterprise_id=?
               and enterprise_uuid=?)
-      and datime between ? and ? 
+      and datime between ? and ?
     order by id desc
   `;
   const pool = mysql.promise();
@@ -207,7 +207,7 @@ router.put('/', async (ctx) => {
   try {
     const query = ctx.request.query.category || '';
     switch (query) {
-      case '':
+      case '': {
         sql = `
         select *
         from enterprise
@@ -218,7 +218,8 @@ router.put('/', async (ctx) => {
         const [rows] = await pool.query(sql, [ctx.request.body.filter_name]);
         ctx.response.body = { message: '', content: rows };
         break;
-      case 'job-fair':
+      }
+      case 'job-fair': {
         sql = `
         select id, uuid, status, name, yingyezhizhao, phone,
             faren, zhuceriqi, zhuziguimo, yuangongshuliang, address1,
@@ -230,6 +231,7 @@ router.put('/', async (ctx) => {
         const [rows2] = await pool.query(sql, [ctx.params.id]);
         ctx.response.body = { message: '', content: rows2 };
         break;
+      }
       default:
         ctx.response.body = [];
     }

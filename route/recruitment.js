@@ -96,7 +96,7 @@ router.put('/', async (ctx) => {
   const pool = mysql.promise();
   try {
     switch (query) {
-      case 'job-fair':
+      case 'job-fair': {
         const sql = `
         select *
         from recruitment
@@ -106,6 +106,7 @@ router.put('/', async (ctx) => {
         const [rows] = await pool.query(sql, [ctx.request.body.job_fair_id]);
         ctx.response.body = rows;
         break;
+      }
       default:
         ctx.response.body = [];
     }

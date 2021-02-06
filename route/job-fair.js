@@ -14,7 +14,7 @@ router.put('/', async (ctx) => {
   const pool = mysql.promise();
   try {
     switch (query) {
-      case '':
+      case '': {
         const sql = `
         select id, title, content, datime, status
         from job_fair
@@ -24,6 +24,7 @@ router.put('/', async (ctx) => {
         const [rows] = await pool.query(sql);
         ctx.response.body = rows;
         break;
+      }
       default:
         ctx.response.body = [];
     }
@@ -63,7 +64,7 @@ router.get('/:id', async (ctx) => {
   const pool = mysql.promise();
   try {
     const [rows] = await pool.query(sql, [parseInt(ctx.params.id, 10)]);
-    ctx.response.body = !!rows.length ? rows[0] : {};
+    ctx.response.body = rows.length ? rows[0] : {};
   } catch (err) {
     logger.error(err);
     ctx.response.status = 500;

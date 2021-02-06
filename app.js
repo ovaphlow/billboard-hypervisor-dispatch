@@ -34,6 +34,7 @@ app.use(
   }),
 );
 
+// eslint-disable-next-line
 const STATIC_PATH = path.join(__dirname, '../public');
 app.use(
   staticCache(STATIC_PATH, {
