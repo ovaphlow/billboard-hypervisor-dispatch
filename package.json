@@ -7,6 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "@koa/router": "^10.0.0",
+    "dayjs": "^1.10.4",
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0",
     "koa-static-cache": "^5.1.4",

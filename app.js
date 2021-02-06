@@ -17,7 +17,7 @@ app.use(
 );
 
 // eslint-disable-next-line
-const STATIC_PATH = path.join(__dirname, '../public');
+const STATIC_PATH = path.join(__dirname, '../billboard-hypervisor-ui/dist');
 app.use(
   staticCache(STATIC_PATH, {
     maxAge: 60 * 60 * 24 * 7,
@@ -49,6 +49,30 @@ app.use(async (ctx, next) => {
     await next();
   }
 });
+
+(() => {
+  const router = require('./route/job');
+  app.use(router.routes());
+  app.use(router.allowedMethods());
+})();
+
+(() => {
+  const router = require('./route/send-in');
+  app.use(router.routes());
+  app.use(router.allowedMethods());
+})();
+
+(() => {
+  const router = require('./route/employer');
+  app.use(router.routes());
+  app.use(router.allowedMethods());
+})();
+
+(() => {
+  const router = require('./route/candidate');
+  app.use(router.routes());
+  app.use(router.allowedMethods());
+})();
 
 (() => {
   const routerContent = require('./route/content');
