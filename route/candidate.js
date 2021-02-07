@@ -26,7 +26,7 @@ router.put('/statistic', async (ctx) => {
       const sql = `
           select count(*) as qty
           from common_user
-          where position(? in datime) > 0
+          where position(? in date_create) > 0
           `;
       const pool = mysql.promise();
       const [rows] = await pool.query(sql, [dayjs().format('YYYY-MM-DD')]);

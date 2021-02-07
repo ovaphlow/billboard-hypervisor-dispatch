@@ -1,3 +1,4 @@
+const dayjs = require('dayjs');
 const Router = require('@koa/router');
 
 const logger = require('../logger');
@@ -8,6 +9,26 @@ const router = new Router({
 });
 
 module.exports = router;
+
+router.put('/statistic', async (ctx) => {
+  try {
+    const option = ctx.request.query.option || '';
+    if (option === 'tuijian-today') {
+      const sql = 'select count(*) as qty from recommend where position(? in date_create) > 0';
+      const pool = mysql.promise();
+      const [rows] = await pool.query(sql, [dayjs().format('YYYY-MM-DD')]);
+      ctx.response.body = rows[0].qty;
+    } else if (option === 'tuijian-all') {
+      const sql = 'select count(*) as qty from recommend';
+      const pool = mysql.promise();
+      const [rows] = await pool.query(sql);
+      ctx.response.body = rows[0].qty;
+    }
+  } catch (err) {
+    logger.error(err);
+    ctx.response.status = 500;
+  }
+});
 
 router.get('/:id', async (ctx) => {
   const pool = mysql.promise();
