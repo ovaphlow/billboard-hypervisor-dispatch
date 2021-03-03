@@ -11,16 +11,16 @@ module.exports = router;
 
 router.put('/filter', async (ctx) => {
   const sql = `
-    select eu.id, eu.uuid, enterprise_id, enterprise_uuid, eu.name, eu.phone,
-      e.name as enterprise
-    from enterprise_user as eu
-      join enterprise as e on e.id = eu.enterprise_id
-    where position(? in eu.name) > 0
-      or position(? in eu.phone) > 0
-      or position(? in e.name) > 0
-    order by id desc
-    limit 100
-  `;
+      select eu.id, eu.uuid, enterprise_id, enterprise_uuid, eu.name, eu.phone,
+        e.name as enterprise
+      from enterprise_user as eu
+        join enterprise as e on e.id = eu.enterprise_id
+      where position(? in eu.name) > 0
+        or position(? in eu.phone) > 0
+        or position(? in e.name) > 0
+      order by id desc
+      limit 100
+      `;
   const pool = mysql.promise();
   try {
     const [rows] = await pool.query(sql, [
@@ -37,11 +37,10 @@ router.put('/filter', async (ctx) => {
 
 router.get('/:id', async (ctx) => {
   const sql = `
-    select id, enterprise_id, name, phone
-    from enterprise_user
-    where id = ? and uuid = ?
-    limit 1
-  `;
+      select id, enterprise_id, name, phone
+      from enterprise_user
+      where id = ? and uuid = ?
+      `;
   const pool = mysql.promise();
   try {
     const [rows] = await pool.query(sql, [parseInt(ctx.params.id, 10), ctx.request.query.uuid]);
@@ -57,10 +56,10 @@ router.get('/:id', async (ctx) => {
 
 router.put('/:id', async (ctx) => {
   const sql = `
-    update enterprise_user
-    set username = ?, name = ?, phone = ?
-    where id = ? and uuid = ?
-  `;
+      update enterprise_user
+      set username = ?, name = ?, phone = ?
+      where id = ? and uuid = ?
+      `;
   const pool = mysql.promise();
   try {
     await pool.execute(sql, [
@@ -78,9 +77,7 @@ router.put('/:id', async (ctx) => {
 });
 
 router.delete('/:id', async (ctx) => {
-  const sql = `
-    delete from enterprise_user where id = ? and uuid = ?
-  `;
+  const sql = 'delete from enterprise_user where id = ? and uuid = ?';
   const pool = mysql.promise();
   try {
     await pool.execute(sql, [parseInt(ctx.params.id, 10), ctx.request.query.uuid]);
@@ -93,13 +90,13 @@ router.delete('/:id', async (ctx) => {
 
 router.put('/', async (ctx) => {
   const sql = `
-    select eu.id, eu.uuid, enterprise_id, enterprise_uuid, eu.name, eu.phone,
-      e.name as enterprise
-    from enterprise_user as eu
-      join enterprise as e on e.id = eu.enterprise_id
-    order by id desc
-    limit 100
-  `;
+      select eu.id, eu.uuid, enterprise_id, enterprise_uuid, eu.name, eu.phone,
+        e.name as enterprise
+      from enterprise_user as eu
+        join enterprise as e on e.id = eu.enterprise_id
+      order by id desc
+      limit 100
+      `;
   const pool = mysql.promise();
   try {
     const [rows] = await pool.query(sql);
