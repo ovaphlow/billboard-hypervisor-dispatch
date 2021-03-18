@@ -1,6 +1,6 @@
 const cluster = require('cluster');
 const http = require('http');
-const os = require('os');
+// const os = require('os');
 
 const app = require('./app');
 const logger = require('./logger');
@@ -11,7 +11,8 @@ if (cluster.isMaster) {
   // eslint-disable-next-line
   logger.log(`${new Date()} 主进程 PID:${process.pid}`);
 
-  for (let i = 0; i < os.cpus().length; i += 1) {
+  // for (let i = 0; i < os.cpus().length; i += 1) {
+  for (let i = 0; i < 1; i += 1) {
     cluster.fork();
   }
 

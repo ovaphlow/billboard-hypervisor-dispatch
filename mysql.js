@@ -1,16 +1,14 @@
-const os = require('os');
-
 const mysql = require('mysql2');
 
 const pool = mysql.createPool({
   user: 'ovaphlow',
   password: 'ovaph@HD.1123',
-  host: '211.159.150.3',
+  host: '127.0.0.1',
   port: 3306,
-  database: 'hengda-billboard',
+  database: 'billboard',
   waitForConnections: true,
-  connectionLimit: os.cpus().length,
-  queueLimit: os.cpus().length,
+  connectionLimit: 2,
+  queueLimit: 2,
 });
 
 module.exports = pool;
