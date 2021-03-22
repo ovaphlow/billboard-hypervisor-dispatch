@@ -41,11 +41,11 @@ router.put('/certificate/filter/', async (ctx) => {
 });
 
 router.get('/certificate/', async (ctx) => {
-  const sql = `
-    select * from enterprise where status = '待认证' limit 100
-  `;
-  const pool = mysql.promise();
   try {
+    const sql = `
+        select id, name, faren from enterprise where status = '待认证' order by id desc limit 100
+        `;
+    const pool = mysql.promise();
     const [rows] = await pool.query(sql);
     ctx.response.body = { message: '', content: rows };
   } catch (err) {
@@ -55,14 +55,20 @@ router.get('/certificate/', async (ctx) => {
 });
 
 router.put('/certificate/', async (ctx) => {
-  const sql = `
-    update enterprise
-    set status = '认证'
-    where id = ?
-      and uuid = ?
-  `;
-  const pool = mysql.promise();
   try {
+    const sql = `
+        update enterprise
+        set status = '认证'
+          , yingyezhizhao_tu = (
+              select json_unquote(json_doc->'$.base64')
+              from ovaphlow.setting
+              where category = '企业认证'
+              limit 1
+            )
+        where id = ?
+          and uuid = ?
+        `;
+    const pool = mysql.promise();
     await pool.execute(sql, [parseInt(ctx.request.body.id, 10), ctx.request.body.uuid]);
     ctx.response.body = { message: '', content: '' };
   } catch (err) {
