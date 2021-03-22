@@ -43,7 +43,11 @@ router.put('/certificate/filter/', async (ctx) => {
 router.get('/certificate/', async (ctx) => {
   try {
     const sql = `
-        select id, name, faren from enterprise where status = '待认证' order by id desc limit 100
+        select id, name, faren
+        from enterprise
+        where status = '待认证'
+        order by id desc
+        limit 100
         `;
     const pool = mysql.promise();
     const [rows] = await pool.query(sql);
