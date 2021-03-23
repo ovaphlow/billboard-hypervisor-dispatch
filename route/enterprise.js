@@ -43,7 +43,7 @@ router.put('/certificate/filter/', async (ctx) => {
 router.get('/certificate/', async (ctx) => {
   try {
     const sql = `
-        select id, name, faren
+        select id, uuid, name, faren
         from enterprise
         where status = '待认证'
         order by id desc
@@ -63,12 +63,7 @@ router.put('/certificate/', async (ctx) => {
     const sql = `
         update enterprise
         set status = '认证'
-          , yingyezhizhao_tu = (
-              select json_unquote(json_doc->'$.base64')
-              from ovaphlow.setting
-              where category = '企业认证'
-              limit 1
-            )
+          , yingyezhizhao_tu = null
         where id = ?
           and uuid = ?
         `;
