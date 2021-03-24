@@ -1,8 +1,8 @@
 const dayjs = require('dayjs');
 const Router = require('@koa/router');
 
-const logger = require('../logger');
-const mysql = require('../mysql');
+const logger = require('./logger');
+const mysql = require('./mysql');
 
 const router = new Router({
   prefix: '/api/bulletin',
@@ -10,7 +10,7 @@ const router = new Router({
 
 module.exports = router;
 
-router.put('/statistic', async (ctx) => {
+router.get('/statistic', async (ctx) => {
   try {
     const option = ctx.request.query.option || '';
     if (option === 'tuijian-today') {

@@ -44,25 +44,13 @@ app.use(async (ctx, next) => {
 });
 
 (() => {
-  const router = require('./route/job');
+  const router = require('./route-biz');
   app.use(router.routes());
   app.use(router.allowedMethods());
 })();
 
 (() => {
-  const router = require('./route/send-in');
-  app.use(router.routes());
-  app.use(router.allowedMethods());
-})();
-
-(() => {
-  const router = require('./route/employer');
-  app.use(router.routes());
-  app.use(router.allowedMethods());
-})();
-
-(() => {
-  const router = require('./route/candidate');
+  const router = require('./route-bulletin');
   app.use(router.routes());
   app.use(router.allowedMethods());
 })();
@@ -155,12 +143,6 @@ app.use(async (ctx, next) => {
   const routerStats = require('./route/stats');
   app.use(routerStats.routes());
   app.use(routerStats.allowedMethods());
-})();
-
-(() => {
-  const routerBulletin = require('./route/bulletin');
-  app.use(routerBulletin.routes());
-  app.use(routerBulletin.allowedMethods());
 })();
 
 (() => {

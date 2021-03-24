@@ -9,6 +9,9 @@ const router = new Router({
 
 module.exports = router;
 
+/**
+ * 2021-03-24 to remove
+ */
 router.get('/certificate/qty', async (ctx) => {
   const sql = `
     select count(*) as qty from enterprise where status = '待认证'
@@ -23,6 +26,9 @@ router.get('/certificate/qty', async (ctx) => {
   }
 });
 
+/**
+ * 2021-03-24 to remove
+ */
 router.put('/certificate/filter/', async (ctx) => {
   const sql = `
     select *
@@ -40,6 +46,9 @@ router.put('/certificate/filter/', async (ctx) => {
   }
 });
 
+/**
+ * 2021-03-24 to remove
+ */
 router.get('/certificate/', async (ctx) => {
   try {
     const sql = `
@@ -58,6 +67,9 @@ router.get('/certificate/', async (ctx) => {
   }
 });
 
+/**
+ * 2021-03-24 to remove
+ */
 router.put('/certificate/', async (ctx) => {
   try {
     const sql = `
