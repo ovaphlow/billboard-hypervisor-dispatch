@@ -47,11 +47,19 @@ router.get('/employer/filter', async (ctx) => {
           limit 100
           `;
       const pool = mysql.promise();
-      const [rows] = await pool.query(sql, [
+      const [result] = await pool.query(sql, [
         ctx.request.query.keyword || '',
         ctx.request.query.keyword || '',
       ]);
-      ctx.response.body = rows;
+      ctx.response.body = result;
+    } else if (option === 'filter-user-by-id-list') {
+      const sql = `
+          select id, uuid, name, phone, email, enterprise_id
+          from enterprise_user
+          where enterprise_id in (${ctx.request.query.list || 0})`;
+      const pool = mysql.promise();
+      const [result] = await pool.query(sql);
+      ctx.response.body = result;
     } else if (option === 'to-certificate') {
       const sql = `
           select id, uuid, name, faren
@@ -99,6 +107,33 @@ router.get('/employer/statistic', async (ctx) => {
       const pool = mysql.promise();
       const [rows] = await pool.query(sql);
       ctx.response.body = rows[0].qty || 0;
+    }
+  } catch (err) {
+    logger.error(err);
+    ctx.response.status = 500;
+  }
+});
+
+router.get('/employer/:id', async (ctx) => {
+  try {
+    const option = ctx.request.query.option || '';
+    if (option === '') {
+      const sql = `
+          select * from enterprise where id = ? and uuid = ? limit 1
+          `
+      const pool = mysql.promise();
+      const [result] = await pool.execute(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+      ctx.response.body = result.length === 1 ? result[0] : {};
+    } else if (option === 'user') {
+      const sql = `
+          select id, uuid, name, phone, email
+          from enterprise_user
+          where id = ?
+            and uuid = ?
+          `;
+      const pool = mysql.promise();
+      const [result] = await pool.execute(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+      ctx.response.body = result.length === 1 ? result[0] : {};
     }
   } catch (err) {
     logger.error(err);

@@ -88,6 +88,9 @@ router.put('/certificate/', async (ctx) => {
   }
 });
 
+/**
+ * 2021-03 confirm to remove
+ */
 router.get('/:id', async (ctx) => {
   const sql = `
     select * from enterprise where id = ? and uuid = ? limit 1
