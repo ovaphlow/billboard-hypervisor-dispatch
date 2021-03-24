@@ -37,7 +37,22 @@ router.get('/candidate/statistic', async (ctx) => {
 router.get('/employer/filter', async (ctx) => {
   try {
     const option = ctx.request.query.option || '';
-    if (option === 'to-certificate') {
+    if (option === '') {
+      const sql = `
+          select id, uuid, name, faren, phone
+          from enterprise
+          where position(? in name) > 0
+            or position(? in phone) > 0
+          order by id desc
+          limit 100
+          `;
+      const pool = mysql.promise();
+      const [rows] = await pool.query(sql, [
+        ctx.request.query.keyword || '',
+        ctx.request.query.keyword || '',
+      ]);
+      ctx.response.body = rows;
+    } else if (option === 'to-certificate') {
       const sql = `
           select id, uuid, name, faren
           from enterprise
