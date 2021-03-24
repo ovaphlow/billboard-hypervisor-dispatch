@@ -131,7 +131,6 @@ router.put('/delivery', async (ctx) => {
     order by id desc
   `;
   const pool = mysql.promise();
-  console.info(ctx.query.uuid);
   try {
     const [rows] = await pool.query(sql, [
       ctx.request.body.enterprise_id,

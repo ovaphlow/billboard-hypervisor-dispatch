@@ -120,7 +120,7 @@ router.get('/employer/:id', async (ctx) => {
     if (option === '') {
       const sql = `
           select * from enterprise where id = ? and uuid = ? limit 1
-          `
+          `;
       const pool = mysql.promise();
       const [result] = await pool.execute(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
       ctx.response.body = result.length === 1 ? result[0] : {};
@@ -162,6 +162,30 @@ router.put('/employer/:id', async (ctx) => {
   }
 });
 
+router.get('/job/filter', async (ctx) => {
+  try {
+    const option = ctx.request.query.option || '';
+    if (option === 'list-by-employer-id') {
+      const sql = `
+          select *
+          from recruitment
+          where enterprise_id = ?
+            and enterprise_uuid = ?
+          limit 200
+          `;
+      const pool = mysql.promise();
+      const [result] = await pool.query(sql, [
+        parseInt(ctx.request.query.id),
+        ctx.request.query.uuid,
+      ]);
+      ctx.response.body = result;
+    }
+  } catch (err) {
+    logger.error(err);
+    ctx.response.status = 500;
+  }
+});
+
 router.get('/job/statistic', async (ctx) => {
   try {
     const option = ctx.request.query.option || '';
@@ -170,6 +194,33 @@ router.get('/job/statistic', async (ctx) => {
       const pool = mysql.promise();
       const [rows] = await pool.query(sql);
       ctx.response.body = rows[0].qty;
+    }
+  } catch (err) {
+    logger.error(err);
+    ctx.response.status = 500;
+  }
+});
+
+router.get('/send-in/filter', async (ctx) => {
+  try {
+    const option = ctx.request.query.option || '';
+    if (option === 'list-by-employer') {
+      const sql = `
+          select id, datime, status
+          from delivery
+          where recruitment_uuid in (
+              select uuid from recruitment where enterprise_id=? and enterprise_uuid=?)
+            and datime between ? and ?
+          order by id desc
+          `;
+      const pool = mysql.promise();
+      const [result] = await pool.query(sql, [
+        ctx.request.query.id,
+        ctx.request.query.uuid,
+        ctx.request.query.date_begin,
+        ctx.request.query.date_end,
+      ]);
+      ctx.response.body = result;
     }
   } catch (err) {
     logger.error(err);
