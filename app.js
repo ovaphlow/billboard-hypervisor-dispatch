@@ -80,18 +80,6 @@ app.use(async (ctx, next) => {
 })();
 
 (() => {
-  const routerRecruitment = require('./route/recruitment');
-  app.use(routerRecruitment.routes());
-  app.use(routerRecruitment.allowedMethods());
-})();
-
-(() => {
-  const routerDelivery = require('./route/delivery');
-  app.use(routerDelivery.routes());
-  app.use(routerDelivery.allowedMethods());
-})();
-
-(() => {
   const routerFavorite = require('./route/favorite');
   app.use(routerFavorite.routes());
   app.use(routerFavorite.allowedMethods());

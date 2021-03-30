@@ -222,6 +222,14 @@ router.get('/job/filter', async (ctx) => {
         ctx.request.query.uuid,
       ]);
       ctx.response.body = result;
+    } else if (option === 'by-id-list') {
+      const sql = `
+          select id, uuid, name
+          from recruitment
+          where id in (${ctx.request.query.list})`;
+      const pool = mysql.promise();
+      const [result] = await pool.query(sql);
+      ctx.response.body = result;
     }
   } catch (err) {
     logger.error(err);
@@ -240,6 +248,23 @@ router.get('/job/statistic', async (ctx) => {
     }
   } catch (err) {
     logger.error(err);
+    ctx.response.status = 500;
+  }
+});
+
+router.get('/job/:id', async (ctx) => {
+  try {
+    const sql = `
+        select *
+        from recruitment
+        where id = ? and uuid = ?
+        limit 1
+        `;
+    const pool = mysql.promise();
+    const [result] = await pool.query(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+    ctx.response.body = result.length === 1 ? result[0] : {};
+  } catch (err) {
+    logger.error(err.stack);
     ctx.response.status = 500;
   }
 });
@@ -274,7 +299,23 @@ router.get('/resume/:id', async (ctx) => {
 router.get('/send-in/filter', async (ctx) => {
   try {
     const option = ctx.request.query.option || '';
-    if (option === 'list-by-employer') {
+    if (option === '') {
+      const sql = `
+          select *
+            -- , (select name from resume where id = d.resume_id ) as resume_name
+            -- , (select name from recruitment where id = d.recruitment_id ) as recruitment_name
+          from delivery as d
+          where resume_id in (select id from resume where common_user_id = ?)
+            and datime between ? and ?
+          `;
+      const pool = mysql.promise();
+      const [rows] = await pool.query(sql, [
+        parseInt(ctx.request.query.id),
+        ctx.request.query.date_begin,
+        ctx.request.query.date_end,
+      ]);
+      ctx.response.body = rows;
+    } else if (option === 'list-by-employer') {
       const sql = `
           select id, datime, status
           from delivery
@@ -293,7 +334,7 @@ router.get('/send-in/filter', async (ctx) => {
       ctx.response.body = result;
     }
   } catch (err) {
-    logger.error(err);
+    logger.error(err.stack);
     ctx.response.status = 500;
   }
 });
@@ -308,7 +349,7 @@ router.get('/send-in/statistic', async (ctx) => {
       ctx.response.body = rows[0].qty;
     }
   } catch (err) {
-    logger.error(err);
+    logger.error(err.stack);
     ctx.response.status = 500;
   }
 });
