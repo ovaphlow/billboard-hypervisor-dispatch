@@ -34,6 +34,49 @@ router.get('/candidate/statistic', async (ctx) => {
   }
 });
 
+router.get('/candidate/filter', async (ctx) => {
+  try {
+    const sql = `
+      select id
+        , uuid
+        , name
+        , phone
+        , email
+        -- , (select count(*) from favorite where user_id = cu.id) as qty_favorite
+        -- 投递数量
+        -- (select count(*) from favorite where common_user_id = cu.id) as qty_delivery
+      from common_user as cu
+      where position(? in name) > 0
+        or position(? in phone) > 0
+      order by id desc
+      limit 100
+      `;
+    const pool = mysql.promise();
+    const [rows] = await pool.query(sql, [ctx.request.query.keyword, ctx.request.query.keyword]);
+    ctx.response.body = rows;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.get('/candidate/:id', async (ctx) => {
+  try {
+    const sql = `
+      select id, uuid, name, email, phone
+      from common_user
+      where id = ? and uuid = ?
+      limit 1
+      `;
+    const pool = mysql.promise();
+    const [rows] = await pool.query(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+    ctx.response.body = rows.length === 1 ? rows[0] : {};
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
 router.get('/employer/filter', async (ctx) => {
   try {
     const option = ctx.request.query.option || '';
@@ -197,6 +240,33 @@ router.get('/job/statistic', async (ctx) => {
     }
   } catch (err) {
     logger.error(err);
+    ctx.response.status = 500;
+  }
+});
+
+router.get('/resume/filter', async (ctx) => {
+  try {
+    const option = ctx.request.query.option || '';
+    if (option === 'by-candidate') {
+      const sql = 'select * from resume where common_user_id = ?';
+      const pool = mysql.promise();
+      const [rows] = await pool.query(sql, [parseInt(ctx.request.query.id)]);
+      ctx.response.body = rows;
+    }
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.get('/resume/:id', async (ctx) => {
+  try {
+    const sql = 'select * from resume where id = ? and uuid = ? limit 1';
+    const pool = mysql.promise();
+    const [rows] = await pool.query(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+    ctx.response.body = rows.length === 1 ? rows[0] : {};
+  } catch (err) {
+    logger.error(err.stack);
     ctx.response.status = 500;
   }
 });

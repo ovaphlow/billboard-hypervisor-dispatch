@@ -86,18 +86,6 @@ app.use(async (ctx, next) => {
 })();
 
 (() => {
-  const routerCommonUser = require('./route/common-user');
-  app.use(routerCommonUser.routes());
-  app.use(routerCommonUser.allowedMethods());
-})();
-
-(() => {
-  const routerResume = require('./route/resume');
-  app.use(routerResume.routes());
-  app.use(routerResume.allowedMethods());
-})();
-
-(() => {
   const routerDelivery = require('./route/delivery');
   app.use(routerDelivery.routes());
   app.use(routerDelivery.allowedMethods());
