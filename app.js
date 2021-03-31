@@ -56,6 +56,12 @@ app.use(async (ctx, next) => {
 })();
 
 (() => {
+  const router = require('./route-miscellaneous');
+  app.use(router.routes());
+  app.use(router.allowedMethods());
+})();
+
+(() => {
   const routerContent = require('./route/content');
   app.use(routerContent.routes());
   app.use(routerContent.allowedMethods());

@@ -10,6 +10,44 @@ const router = new Router({
 
 module.exports = router;
 
+router.get('/candidate/filter', async (ctx) => {
+  try {
+    const option = ctx.request.query.option || '';
+    if (option === '') {
+      const sql = `
+      select id
+        , uuid
+        , name
+        , phone
+        , email
+        -- , (select count(*) from favorite where user_id = cu.id) as qty_favorite
+        -- 投递数量
+        -- (select count(*) from favorite where common_user_id = cu.id) as qty_delivery
+      from common_user as cu
+      where position(? in name) > 0
+        or position(? in phone) > 0
+      order by id desc
+      limit 100
+      `;
+      const pool = mysql.promise();
+      const [rows] = await pool.query(sql, [ctx.request.query.keyword, ctx.request.query.keyword]);
+      ctx.response.body = rows;
+    } else if (option === 'by-id-list') {
+      const sql = `
+          select id, uuid, name, phone, email
+          from common_user
+          where id in (${ctx.request.query.list})
+          `;
+      const pool = mysql.promise();
+      const [result] = await pool.query(sql);
+      ctx.response.body = result;
+    }
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
 router.get('/candidate/statistic', async (ctx) => {
   try {
     const option = ctx.request.query.option || '';
@@ -30,32 +68,6 @@ router.get('/candidate/statistic', async (ctx) => {
     }
   } catch (err) {
     logger.error(err);
-    ctx.response.status = 500;
-  }
-});
-
-router.get('/candidate/filter', async (ctx) => {
-  try {
-    const sql = `
-      select id
-        , uuid
-        , name
-        , phone
-        , email
-        -- , (select count(*) from favorite where user_id = cu.id) as qty_favorite
-        -- 投递数量
-        -- (select count(*) from favorite where common_user_id = cu.id) as qty_delivery
-      from common_user as cu
-      where position(? in name) > 0
-        or position(? in phone) > 0
-      order by id desc
-      limit 100
-      `;
-    const pool = mysql.promise();
-    const [rows] = await pool.query(sql, [ctx.request.query.keyword, ctx.request.query.keyword]);
-    ctx.response.body = rows;
-  } catch (err) {
-    logger.error(err.stack);
     ctx.response.status = 500;
   }
 });
@@ -116,6 +128,15 @@ router.get('/employer/filter', async (ctx) => {
       const pool = mysql.promise();
       const [rows] = await pool.query(sql, [ctx.request.query.name || '']);
       ctx.response.body = rows;
+    } else if (option === 'user-by-user-id-list') {
+      const sql = `
+          select id, uuid, name, phone, email, enterprise_id
+          from enterprise_user
+          where id in (${ctx.request.query.list || 0})
+          `;
+      const pool = mysql.promise();
+      const [result] = await pool.query(sql);
+      ctx.response.body = result;
     }
   } catch (err) {
     logger.error(err);
