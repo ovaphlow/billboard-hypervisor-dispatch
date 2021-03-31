@@ -98,12 +98,6 @@ app.use(async (ctx, next) => {
 })();
 
 (() => {
-  const routerFeedback = require('./route/feedback');
-  app.use(routerFeedback.routes());
-  app.use(routerFeedback.allowedMethods());
-})();
-
-(() => {
   const routerReport = require('./route/report');
   app.use(routerReport.routes());
   app.use(routerReport.allowedMethods());

@@ -13,13 +13,13 @@ router.get('/feedback/filter', async (ctx) => {
   try {
     const sql = `
         select *
-        from feedback as f
-        where category = '意见反馈'
+        from feedback
+        where category = ?
         order by id desc
         limit 100
         `;
     const pool = mysql.promise();
-    const [result] = await pool.query(sql);
+    const [result] = await pool.query(sql, [ctx.request.query.category]);
     ctx.response.body = result;
   } catch (err) {
     logger.error(err.stack);
@@ -49,7 +49,6 @@ router.put('/feedback/:id', async (ctx) => {
           update feedback
           set status = '已处理'
           where id = ?
-            and category = '意见反馈'
           `;
       await pool.execute(sql2, [parseInt(ctx.params.id)]);
       ctx.response.status = 200;
