@@ -251,6 +251,16 @@ router.get('/job/filter', async (ctx) => {
       const pool = mysql.promise();
       const [result] = await pool.query(sql);
       ctx.response.body = result;
+    } else if (option === 'by-fair-id') {
+      const sql = `
+          select *
+          from recruitment
+          where json_search(job_fair_id, "one", ?)
+          order by id desc
+          `;
+      const pool = mysql.promise();
+      const [rows] = await pool.query(sql, [ctx.request.query.fair_id]);
+      ctx.response.body = rows;
     }
   } catch (err) {
     logger.error(err);
