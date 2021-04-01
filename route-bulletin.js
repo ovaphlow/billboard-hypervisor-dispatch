@@ -10,6 +10,43 @@ const router = new Router({
 
 module.exports = router;
 
+router.get('/campus/filter', async (ctx) => {
+  try {
+    const option = ctx.request.query.option || '';
+    if (option === '') {
+      const sql = `
+          select id, uuid, category, mis_user_id, date, time, title, school,
+            address_level1, address_level2, address_level3, address_level4
+          from campus
+          where position(? in date) > 0
+            and position(? in title) > 0
+          order by id desc
+          limit 20
+          `;
+      const pool = mysql.promise();
+      const [result] = await pool.query(sql, [ctx.request.query.date, ctx.request.query.title]);
+      ctx.response.body = result;
+    }
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.get('/campus/:id', async (ctx) => {
+  try {
+    const sql = `
+        select * from campus where id = ? and uuid = ? limit 1
+        `;
+    const pool = mysql.promise();
+    const [result] = await pool.query(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+    ctx.response.body = result.length === 1 ? result[0] : {};
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
 router.get('/fair/filter', async (ctx) => {
   try {
     const sql = `
