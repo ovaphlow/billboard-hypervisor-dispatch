@@ -10,6 +10,99 @@ const router = new Router({
 
 module.exports = router;
 
+router.get('/fair/filter', async (ctx) => {
+  try {
+    const sql = `
+        select id, title, content, datime, status
+        from job_fair
+        order by id desc
+        limit 100
+        `;
+    const pool = mysql.promise();
+    const [result] = await pool.query(sql);
+    ctx.response.body = result;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.get('/fair/:id', async (ctx) => {
+  try {
+    const sql = `
+        select id, title, content, datime, status
+        from job_fair
+        where id = ?
+        limit 1
+        `;
+    const pool = mysql.promise();
+    const [result] = await pool.query(sql, [parseInt(ctx.params.id)]);
+    ctx.response.body = result.length === 1 ? result[0] : {};
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.put('/fair/:id', async (ctx) => {
+  try {
+    const sql = `
+        update job_fair
+        set title = ?, content = ?, datime = ?, status = ?
+        where id = ?
+        `;
+    const pool = mysql.promise();
+    await pool.query(sql, [
+      ctx.request.body.title,
+      ctx.request.body.content,
+      ctx.request.body.datime,
+      ctx.request.body.status,
+      parseInt(ctx.params.id),
+    ]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.delete('/fair/:id', async (ctx) => {
+  try {
+    const sql = `
+        delete from job_fair where id = ?
+        `;
+    const pool = mysql.promise();
+    await pool.query(sql, [parseInt(ctx.params.id)]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.post('/fair', async (ctx) => {
+  try {
+    const sql = `
+        insert into job_fair
+          (title, content, datime)
+        values (?, ?, ?);
+        `;
+    const pool = mysql.promise();
+    await pool.query(sql, [
+      ctx.request.body.title,
+      ctx.request.body.content,
+      ctx.request.body.datime,
+    ]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+/**
+ * 原bulletin的内容
+ */
 router.get('/statistic', async (ctx) => {
   try {
     const option = ctx.request.query.option || '';
@@ -30,6 +123,9 @@ router.get('/statistic', async (ctx) => {
   }
 });
 
+/**
+ * 原bulletin的内容
+ */
 router.get('/:id', async (ctx) => {
   const pool = mysql.promise();
   try {
@@ -47,6 +143,9 @@ router.get('/:id', async (ctx) => {
   }
 });
 
+/**
+ * 原bulletin的内容
+ */
 router.put('/:id', async (ctx) => {
   const pool = mysql.promise();
   try {
@@ -71,6 +170,9 @@ router.put('/:id', async (ctx) => {
   }
 });
 
+/**
+ * 原bulletin的内容
+ */
 router.get('/', async (ctx) => {
   const pool = mysql.promise();
   try {
@@ -88,6 +190,9 @@ router.get('/', async (ctx) => {
   }
 });
 
+/**
+ * 原bulletin的内容
+ */
 router.post('/', async (ctx) => {
   const pool = mysql.promise();
   try {

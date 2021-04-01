@@ -121,10 +121,4 @@ app.use(async (ctx, next) => {
   app.use(routerStats.allowedMethods());
 })();
 
-(() => {
-  const routerJobFair = require('./route/job-fair');
-  app.use(routerJobFair.routes());
-  app.use(routerJobFair.allowedMethods());
-})();
-
 module.exports = app;
