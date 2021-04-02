@@ -217,6 +217,99 @@ router.post('/fair', async (ctx) => {
   }
 });
 
+router.get('/topic/filter', async (ctx) => {
+  try {
+    const sql = `
+        select id, uuid, date, time, mis_user_id, tag, title
+        from topic
+        where position(? in date) > 0
+          and position(? in title) > 0
+        order by id desc
+        `;
+    const pool = mysql.promise();
+    const [result] = await pool.query(sql, [ctx.request.query.date, ctx.request.query.title]);
+    ctx.response.body = result;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.get('/topic/:id', async (ctx) => {
+  try {
+    const sql = 'select * from topic where id = ? and uuid = ? limit 1';
+    const pool = mysql.promise();
+    const [result] = await pool.query(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+    ctx.response.body = result.length === 1 ? result[0] : {};
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.put('/topic/:id', async (ctx) => {
+  try {
+    const sql = `
+        update topic
+        set title = ?
+          , tag = ?
+          , date = ?
+          , time = ?
+          , content=?
+        where id = ?
+          and uuid = ?
+        `;
+    const pool = mysql.promise();
+    await pool.execute(sql, [
+      ctx.request.body.title,
+      ctx.request.body.tag,
+      ctx.request.body.date,
+      ctx.request.body.time,
+      ctx.request.body.content,
+      parseInt(ctx.params.id),
+      ctx.request.query.uuid,
+    ]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.delete('/topic/:id', async (ctx) => {
+  try {
+    const sql = 'delete from topic where id = ? and uuid = ?';
+    const pool = mysql.promise();
+    await pool.execute(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.post('/topic', async (ctx) => {
+  try {
+    const sql = `
+        insert into
+          topic (uuid, mis_user_id, tag, title, date, time, content)
+          values (uuid(), 0, ?,  ?, ?, ?, ?)
+        `;
+    const pool = mysql.promise();
+    await pool.execute(sql, [
+      ctx.request.body.tag,
+      ctx.request.body.title,
+      ctx.request.body.date,
+      ctx.request.body.time,
+      ctx.request.body.content,
+    ]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
 /**
  * 原bulletin的内容
  */
