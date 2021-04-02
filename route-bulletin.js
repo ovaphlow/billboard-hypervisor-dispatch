@@ -47,6 +47,86 @@ router.get('/campus/:id', async (ctx) => {
   }
 });
 
+router.put('/campus/:id', async (ctx) => {
+  try {
+    const sql = `
+        update campus
+        set title = ?
+          , date = ?
+          , time = ?
+          , address_level1 = ?
+          , address_level2 = ?
+          , address_level3 = ?
+          , address_level4 = ?
+          , school = ?
+          , content = ?
+          , category = ?
+        where id = ?
+          and uuid = ?
+        `;
+    const pool = mysql.promise();
+    await pool.execute(sql, [
+      ctx.request.body.title,
+      ctx.request.body.date,
+      ctx.request.body.time,
+      ctx.request.body.address_level1,
+      ctx.request.body.address_level2,
+      ctx.request.body.address_level3,
+      ctx.request.body.address_level4,
+      ctx.request.body.school,
+      ctx.request.body.content,
+      ctx.request.body.category,
+      parseInt(ctx.params.id),
+      ctx.request.query.uuid,
+    ]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.delete('/campus/:id', async (ctx) => {
+  try {
+    const sql = 'delete from campus where id = ? and uuid = ?';
+    const pool = mysql.promise();
+    await pool.execute(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.post('/campus', async (ctx) => {
+  const sql = `
+      insert into
+        campus (uuid, mis_user_id, title, date, time,
+          address_level1, address_level2, address_level3, address_level4,
+          school, content, category)
+        values (uuid(), 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+  const pool = mysql.promise();
+  try {
+    await pool.execute(sql, [
+      ctx.request.body.title,
+      ctx.request.body.date,
+      ctx.request.body.time,
+      ctx.request.body.address_level1,
+      ctx.request.body.address_level2,
+      ctx.request.body.address_level3,
+      ctx.request.body.address_level4,
+      ctx.request.body.school,
+      ctx.request.body.content,
+      ctx.request.body.category,
+    ]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
 router.get('/fair/filter', async (ctx) => {
   try {
     const sql = `
