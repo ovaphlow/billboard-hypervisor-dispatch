@@ -217,6 +217,124 @@ router.post('/fair', async (ctx) => {
   }
 });
 
+router.get('/notification/filter', async (ctx) => {
+  try {
+    const sql = `
+        select id, uuid, category, title, date1, date2,
+          address_level1, address_level2, publisher,
+          qty, baomignfangshi
+        from recommend
+        where position(? in title) > 0
+          and position(? in date1) > 0
+          and position(? in date2) > 0
+        order by id desc
+        limit 100
+        `;
+    const pool = mysql.promise();
+    const [result] = await pool.query(sql, [
+      ctx.request.query.title,
+      ctx.request.query.date,
+      ctx.request.query.date,
+    ]);
+    ctx.response.body = result;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.get('/notification/:id', async (ctx) => {
+  try {
+    const sql = 'select * from recommend where id = ? and uuid = ?';
+    const pool = mysql.promise();
+    const [result] = await pool.query(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+    ctx.response.body = result.length === 1 ? result[0] : {};
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.put('/notification/:id', async (ctx) => {
+  try {
+    const sql = `
+        update recommend
+        set category = ?
+          , title = ?
+          , date1 = ?
+          , date2 = ?
+          , address_level1 = ?
+          , address_level2 = ?
+          , publisher = ?
+          , qty = ?
+          , baomignfangshi = ?
+          , content = ?
+        where id = ?
+          and uuid = ?
+        `;
+    const pool = mysql.promise();
+    await pool.execute(sql, [
+      ctx.request.body.category,
+      ctx.request.body.title,
+      ctx.request.body.date1,
+      ctx.request.body.date2,
+      ctx.request.body.address_level1,
+      ctx.request.body.address_level2,
+      ctx.request.body.publisher,
+      ctx.request.body.qty,
+      ctx.request.body.baomingfangshi,
+      ctx.request.body.content,
+      parseInt(ctx.params.id),
+      ctx.request.query.uuid,
+    ]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.delete('/notification/:id', async (ctx) => {
+  try {
+    const sql = 'delete from recommend where id = ? and uuid = ?';
+    const pool = mysql.promise();
+    await pool.execute(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.post('/notification', async (ctx) => {
+  try {
+    const sql = `
+        insert into
+          recommend (uuid, category, title, date1, date2, address_level1,
+            address_level2, publisher, qty, baomignfangshi, content)
+        value
+          (uuid(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+    const pool = mysql.promise();
+    await pool.execute(sql, [
+      ctx.request.body.category,
+      ctx.request.body.title,
+      ctx.request.body.date1,
+      ctx.request.body.date2,
+      ctx.request.body.address_level1,
+      ctx.request.body.address_level2,
+      ctx.request.body.publisher,
+      ctx.request.body.qty,
+      ctx.request.body.baomingfangshi,
+      ctx.request.body.content,
+    ]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
 router.get('/topic/filter', async (ctx) => {
   try {
     const sql = `
@@ -225,6 +343,7 @@ router.get('/topic/filter', async (ctx) => {
         where position(? in date) > 0
           and position(? in title) > 0
         order by id desc
+        limit 100
         `;
     const pool = mysql.promise();
     const [result] = await pool.query(sql, [ctx.request.query.date, ctx.request.query.title]);
