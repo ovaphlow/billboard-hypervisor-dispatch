@@ -9,6 +9,28 @@ const router = new Router({
 
 module.exports = router;
 
+router.get('/favorite/filter', async (ctx) => {
+  try {
+    const sql = `
+        select *
+        from favorite
+        where user_id = ?
+          and category1 = ?
+        order by id desc
+        limit 100
+        `;
+    const pool = mysql.promise();
+    const [result] = await pool.query(sql, [
+      parseInt(ctx.request.query.master_id),
+      ctx.request.query.category,
+    ]);
+    ctx.response.body = result;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
 router.get('/feedback/filter', async (ctx) => {
   try {
     const sql = `
