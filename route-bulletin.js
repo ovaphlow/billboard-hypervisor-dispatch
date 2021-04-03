@@ -10,6 +10,107 @@ const router = new Router({
 
 module.exports = router;
 
+router.get('/banner/filter', async (ctx) => {
+  try {
+    const sql = `
+        select *
+        from banner
+        where category = ?
+          and status = ?
+        order by datime desc
+        limit 20
+        `;
+    const pool = mysql.promise();
+    const [result] = await pool.query(sql, [ctx.request.query.category, ctx.request.query.status]);
+    ctx.response.body = result;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.get('/banner/:id', async (ctx) => {
+  try {
+    const sql = `
+        select * from banner where id = ? and uuid = ? limit 1
+        `;
+    const pool = mysql.promise();
+    const [result] = await pool.query(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+    ctx.response.body = result.length === 1 ? result[0] : {};
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.put('/banner/:id', async (ctx) => {
+  try {
+    const sql = `
+        update banner
+        set status = ?
+          , category = ?
+          , title = ?
+          , comment = ?
+          , datime = ?
+          , data_url = ?
+        where id = ?
+          and uuid = ?
+        `;
+    const pool = mysql.promise();
+    await pool.execute(sql, [
+      ctx.request.body.status,
+      ctx.request.body.category,
+      ctx.request.body.title,
+      ctx.request.body.comment,
+      ctx.request.body.datime,
+      ctx.request.body.data_url,
+      parseInt(ctx.params.id),
+      ctx.request.query.uuid,
+    ]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.delete('/banner/:id', async (ctx) => {
+  try {
+    const sql = `
+        delete from banner where id = ? and uuid = ?
+        `;
+    const pool = mysql.promise();
+    await pool.execute(sql, [parseInt(ctx.params.id), ctx.request.query.uuid]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
+router.post('/banner', async (ctx) => {
+  try {
+    const sql = `
+        insert into
+          banner (uuid, status, category, title, comment, datime, data_url)
+          values (uuid(), ?, ?, ?, ?, ?, ?)
+        `;
+    const pool = mysql.promise();
+    await pool.execute(sql, [
+      ctx.request.body.status,
+      ctx.request.body.category,
+      ctx.request.body.title,
+      ctx.request.body.comment,
+      ctx.request.body.datime,
+      ctx.request.body.data_url,
+    ]);
+    ctx.response.status = 200;
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
 router.get('/campus/filter', async (ctx) => {
   try {
     const option = ctx.request.query.option || '';

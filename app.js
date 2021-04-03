@@ -62,12 +62,6 @@ app.use(async (ctx, next) => {
 })();
 
 (() => {
-  const routerContent = require('./route/content');
-  app.use(routerContent.routes());
-  app.use(routerContent.allowedMethods());
-})();
-
-(() => {
   const routerMisUser = require('./route/mis-user');
   app.use(routerMisUser.routes());
   app.use(routerMisUser.allowedMethods());
