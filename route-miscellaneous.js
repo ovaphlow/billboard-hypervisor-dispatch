@@ -11,7 +11,9 @@ module.exports = router;
 
 router.get('/favorite/filter', async (ctx) => {
   try {
-    const sql = `
+    const option = ctx.request.query.option || '';
+    if (option === '') {
+      const sql = `
         select *
         from favorite
         where user_id = ?
@@ -19,12 +21,28 @@ router.get('/favorite/filter', async (ctx) => {
         order by id desc
         limit 100
         `;
-    const pool = mysql.promise();
-    const [result] = await pool.query(sql, [
-      parseInt(ctx.request.query.master_id),
-      ctx.request.query.category,
-    ]);
-    ctx.response.body = result;
+      const pool = mysql.promise();
+      const [result] = await pool.query(sql, [
+        parseInt(ctx.request.query.master_id),
+        ctx.request.query.category,
+      ]);
+      ctx.response.body = result;
+    } else if (option === 'employer') {
+      const sql = `
+          select *
+          from favorite
+          where user_id = ?
+            and category1 = '企业用户'
+          order by id desc
+          limit 100
+          `;
+      const pool = mysql.promise();
+      const [result] = await pool.query(sql, [
+        parseInt(ctx.request.query.master_id),
+        ctx.request.query.category,
+      ]);
+      ctx.response.body = result;
+    }
   } catch (err) {
     logger.error(err.stack);
     ctx.response.status = 500;
