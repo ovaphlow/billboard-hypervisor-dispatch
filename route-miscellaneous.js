@@ -99,6 +99,27 @@ router.put('/feedback/:id', async (ctx) => {
   }
 });
 
+router.post('/staff/sign-in', async (ctx) => {
+  try {
+    const sql = `
+        select id, uuid, username, name
+        from mis_user
+        where username = ?
+          and password = ?
+        `;
+    const pool = mysql.promise();
+    const [result] = await pool.query(sql, [ctx.request.body.username, ctx.request.body.password]);
+    if (result.length !== 1) {
+      ctx.response.status = 401;
+    } else {
+      ctx.response.body = result[0];
+    }
+  } catch (err) {
+    logger.error(err.stack);
+    ctx.response.status = 500;
+  }
+});
+
 router.get('/staff/filter', async (ctx) => {
   try {
     const sql = `
@@ -130,21 +151,35 @@ router.get('/staff/:id', async (ctx) => {
 
 router.put('/staff/:id', async (ctx) => {
   try {
-    const sql = `
+    const option = ctx.request.query.option || '';
+    if (option === '') {
+      const sql = `
         update mis_user
         set username = ?
           , name = ?
         where id = ?
           and uuid = ?
         `;
-    const pool = mysql.promise();
-    await pool.execute(sql, [
-      ctx.request.body.username,
-      ctx.request.body.name,
-      parseInt(ctx.params.id),
-      ctx.request.query.uuid,
-    ]);
-    ctx.response.status = 200;
+      const pool = mysql.promise();
+      await pool.execute(sql, [
+        ctx.request.body.username,
+        ctx.request.body.name,
+        parseInt(ctx.params.id),
+        ctx.request.query.uuid,
+      ]);
+      ctx.response.status = 200;
+    } else if (option === 'password') {
+      let sql = 'select password from mis_user where id = ? limit 1';
+      const pool = mysql.promise();
+      const [result] = await pool.query(sql, [parseInt(ctx.params.id)]);
+      if (result[0].password !== ctx.request.body.current_password) {
+        ctx.response.status = 401;
+        return;
+      }
+      sql = 'update mis_user set password = ? where id = ?';
+      await pool.query(sql, [ctx.request.body.new_password, parseInt(ctx.params.id)]);
+      ctx.response.status = 200;
+    }
   } catch (err) {
     logger.error(err.stack);
     ctx.response.status = 500;

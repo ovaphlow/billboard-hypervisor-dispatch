@@ -62,12 +62,6 @@ app.use(async (ctx, next) => {
 })();
 
 (() => {
-  const routerMisUser = require('./route/mis-user');
-  app.use(routerMisUser.routes());
-  app.use(routerMisUser.allowedMethods());
-})();
-
-(() => {
   const routerEnterprise = require('./route/enterprise');
   app.use(routerEnterprise.routes());
   app.use(routerEnterprise.allowedMethods());
@@ -83,30 +77,6 @@ app.use(async (ctx, next) => {
   const routerJournal = require('./route/journal');
   app.use(routerJournal.routes());
   app.use(routerJournal.allowedMethods());
-})();
-
-(() => {
-  const routerReport = require('./route/report');
-  app.use(routerReport.routes());
-  app.use(routerReport.allowedMethods());
-})();
-
-(() => {
-  const routerSetting = require('./route/setting');
-  app.use(routerSetting.routes());
-  app.use(routerSetting.allowedMethods());
-})();
-
-(() => {
-  const routerCurrentUser = require('./route/current-user');
-  app.use(routerCurrentUser.routes());
-  app.use(routerCurrentUser.allowedMethods());
-})();
-
-(() => {
-  const routerStats = require('./route/stats');
-  app.use(routerStats.routes());
-  app.use(routerStats.allowedMethods());
 })();
 
 module.exports = app;
